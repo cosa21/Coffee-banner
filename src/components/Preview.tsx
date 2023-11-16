@@ -2,12 +2,16 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Chip,
   Grid,
   Paper,
   Typography,
 } from "@mui/material";
+import { useFormContext } from "react-hook-form";
 
 export default function Preview() {
+  const { watch } = useFormContext();
+
   return (
     <Paper
       elevation={4}
@@ -21,49 +25,73 @@ export default function Preview() {
       <Typography variant="h5" fontWeight="bold">
         {"Preview"}
       </Typography>
-
-      <Card sx={{ margin: "1rem" }}>
-        <Grid container>
-          <Grid
-            item
-            width="100%"
-            sx={{
-              background: "#1976d2",
-              borderTopLeftRadius: "0.25rem",
-              borderTopRightRadius: "0.25rem",
-              paddingY: 1,
-              paddingX: 2,
-            }}
-          >
-            <Typography variant="h5">{"test"}</Typography>
-          </Grid>
-          <Grid item width="100%">
-            <CardContent>
-              <Grid container display="flex" flexDirection="column" spacing={2}>
-                <Grid item display="flex" flexDirection="row">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    width="50%"
-                    sx={{ wordBreak: "break-word" }}
-                  >
-                    {"test"}
-                  </Typography>
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      height: 200,
-                      width: "50%",
-                    }}
-                    image={"test"}
-                    title={"test"}
-                  />
+      {watch("coffeeName") && (
+        <Card
+          sx={{
+            margin: "1rem",
+            width: `${
+              watch("width") && watch("width") !== "100%"
+                ? watch("custom") !== ""
+                  ? `${watch("custom")}px`
+                  : watch("width")
+                : undefined
+            }`,
+          }}
+        >
+          <Grid container>
+            <Grid
+              item
+              width="100%"
+              sx={{
+                background: "#1976d2",
+                borderTopLeftRadius: "0.25rem",
+                borderTopRightRadius: "0.25rem",
+                paddingY: 1,
+                paddingX: 2,
+              }}
+            >
+              <Typography variant="h5">{watch("title")}</Typography>
+            </Grid>
+            <Grid item width="100%">
+              <CardContent>
+                <Grid
+                  container
+                  display="flex"
+                  flexDirection="column"
+                  spacing={2}
+                >
+                  <Grid item display="flex" flexDirection="row">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      width="50%"
+                      sx={{ wordBreak: "break-word" }}
+                    >
+                      {watch("description")}
+                    </Typography>
+                    {watch("showImage") && (
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          height: 200,
+                          width: "50%",
+                        }}
+                        image={watch("coffeeName.image")}
+                        title={watch("title")}
+                      />
+                    )}
+                  </Grid>
+                  <Grid item>
+                    {watch("coffeeName.ingredients")?.map((i: string) => (
+                      <Chip key={i} label={i} sx={{ marginX: 0.5 }} />
+                    ))}
+                  </Grid>
                 </Grid>
-              </Grid>
-            </CardContent>
+              </CardContent>
+            </Grid>
           </Grid>
-        </Grid>
-      </Card>
+        </Card>
+      )}
     </Paper>
   );
 }

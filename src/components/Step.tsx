@@ -1,13 +1,15 @@
 import { Paper, Grid, Typography, Button } from "@mui/material";
 import { ReactNode } from "react";
+import CodeIcon from "@mui/icons-material/Code";
+import UndoIcon from "@mui/icons-material/Undo";
 
-type Props = {
+interface IProps {
   children: ReactNode;
   disabled?: boolean;
   name: string;
   onNext: () => void;
-  onReset: () => void;
-};
+  onReset?: () => void;
+}
 
 enum STEP {
   FIRST = "FIRST",
@@ -21,7 +23,7 @@ export default function Step({
   name,
   onNext,
   onReset,
-}: Props) {
+}: IProps) {
   const title =
     name === STEP.FIRST
       ? "Select your coffee"
@@ -69,6 +71,7 @@ export default function Step({
               color="primary"
               disabled={disabled}
               onClick={onReset}
+              endIcon={<UndoIcon />}
             >
               Start over
             </Button>
@@ -78,6 +81,7 @@ export default function Step({
             color="primary"
             disabled={disabled}
             onClick={onNext}
+            endIcon={name === STEP.THIRD && <CodeIcon />}
           >
             {name === STEP.THIRD ? "View and copy code" : "Next"}
           </Button>

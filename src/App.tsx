@@ -1,14 +1,17 @@
 import "./App.css";
+import { Stack, Grid, FormControlLabel, Radio, Box } from "@mui/material";
+import { useForm } from "react-hook-form";
 import {
-  Stack,
-  Grid,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  TextField,
-} from "@mui/material";
-import { Preview, Step } from "./components";
+  Preview,
+  RHFCheckbox,
+  RHFRadioGroup,
+  RHFSelect,
+  RHFTextField,
+  Step,
+} from "./components";
 import { useState } from "react";
+import { FormProvider } from "react-hook-form";
+import { CoffeeDto } from "./dto/coffee.dto";
 
 enum STEP {
   FIRST = "FIRST",
@@ -21,17 +24,35 @@ const widthOptions = ["160px", "300px", "100%"];
 
 export default function App() {
   const [activeStep, setActiveStep] = useState<STEP>(STEP.FIRST);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const methods = useForm({
+    defaultValues: {
+      coffeeType: "",
+      coffeeName: null,
+      width: "100%",
+      custom: "",
+      showImage: true,
+      title: "",
+      description: "",
+    },
+  });
+
+  const { setValue, reset, watch } = methods;
+
   const onChangeStep = () => {
-    setActiveStep(
-      activeStep === STEP.FIRST
-        ? STEP.SECOND
-        : activeStep === STEP.SECOND
-        ? STEP.THIRD
-        : STEP.FIRST
-    );
+    if (activeStep === STEP.FIRST) {
+      setActiveStep(STEP.SECOND);
+    } else if (activeStep === STEP.SECOND) {
+      setActiveStep(STEP.THIRD);
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
+  console.log(isModalOpen);
+
   const onReset = () => {
+    reset();
     setActiveStep(STEP.FIRST);
   };
 
@@ -44,72 +65,110 @@ export default function App() {
         height: "100%",
       }}
     >
-      <Grid container>
-        <Grid item xs={12} md={6} p={2} display="flex" flexDirection="column">
-          <Step
-            name={STEP.FIRST}
-            disabled={activeStep !== STEP.FIRST}
-            onNext={onChangeStep}
-            onReset={onReset}
-          >
-            <Stack spacing={1}>
-              <RadioGroup>
-                {coffeeTypeOptions.map((option) => (
-                  <FormControlLabel
-                    key={option}
-                    value={option}
-                    control={<Radio disabled={activeStep !== STEP.FIRST} />}
-                    label={option}
+      <FormProvider {...methods}>
+        <form style={{ width: "100%" }}>
+          <Grid container>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              p={2}
+              display="flex"
+              flexDirection="column"
+            >
+              <Step
+                name={STEP.FIRST}
+                disabled={activeStep !== STEP.FIRST || !watch("coffeeName")}
+                onNext={onChangeStep}
+              >
+                <Stack spacing={1}>
+                  <RHFRadioGroup
+                    name="coffeeType"
+                    options={coffeeTypeOptions}
+                    disabled={activeStep !== STEP.FIRST}
                   />
-                ))}
-              </RadioGroup>
-            </Stack>
-          </Step>
+                  <RHFSelect
+                    name="coffeeName"
+                    onValueChange={(value: CoffeeDto | null) => {
+                      if (value) {
+                        setValue("title", value.title);
+                        setValue("description", value.description);
+                      } else {
+                        setValue("title", "");
+                        setValue("description", "");
+                      }
+                    }}
+                    disabled={activeStep !== STEP.FIRST}
+                  />
+                </Stack>
+              </Step>
 
-          <Step
-            name={STEP.SECOND}
-            disabled={activeStep !== STEP.SECOND}
-            onNext={onChangeStep}
-            onReset={onReset}
-          >
-            <RadioGroup row>
-              {widthOptions.map((option) => (
-                <FormControlLabel
-                  key={option}
-                  value={option}
-                  control={<Radio disabled={activeStep !== STEP.SECOND} />}
-                  label={option}
-                />
-              ))}
-            </RadioGroup>
-          </Step>
+              <Step
+                name={STEP.SECOND}
+                disabled={activeStep !== STEP.SECOND || !watch("width")}
+                onNext={onChangeStep}
+              >
+                <Stack spacing={2}>
+                  <RHFRadioGroup
+                    name="width"
+                    row
+                    options={widthOptions}
+                    disabled={activeStep !== STEP.SECOND}
+                    onChange={() => setValue("custom", "")}
+                  />
+                  <Box display="flex" flexDirection="row">
+                    <FormControlLabel
+                      value="custom"
+                      control={<Radio disabled={activeStep !== STEP.SECOND} />}
+                      label="Custom"
+                      checked={watch("width") === "custom"}
+                      onChange={() => {
+                        setValue("width", "custom");
+                      }}
+                    />
+                    {watch("width") === "custom" && (
+                      <RHFTextField
+                        name="custom"
+                        label="Custom Width"
+                        disabled={activeStep !== STEP.SECOND}
+                      />
+                    )}
+                  </Box>
+                  <RHFCheckbox
+                    name="showImage"
+                    disabled={activeStep !== STEP.SECOND}
+                  />
+                </Stack>
+              </Step>
 
-          <Step
-            name={STEP.THIRD}
-            disabled={activeStep !== STEP.THIRD}
-            onNext={onChangeStep}
-            onReset={onReset}
-          >
-            <Stack spacing={2}>
-              <TextField
-                label="Title"
-                name="title"
+              <Step
+                name={STEP.THIRD}
                 disabled={activeStep !== STEP.THIRD}
-              />
-              <TextField
-                multiline
-                maxRows={5}
-                label="Description"
-                name="description"
-                disabled={activeStep !== STEP.THIRD}
-              />
-            </Stack>
-          </Step>
-        </Grid>
-        <Grid item xs={12} md={6} p={2}>
-          <Preview />
-        </Grid>
-      </Grid>
+                onNext={onChangeStep}
+                onReset={onReset}
+              >
+                <Stack spacing={2}>
+                  <RHFTextField
+                    label="Title"
+                    name="title"
+                    disabled={activeStep !== STEP.THIRD}
+                  />
+                  <RHFTextField
+                    multiline
+                    maxRows={5}
+                    label="Description"
+                    name="description"
+                    disabled={activeStep !== STEP.THIRD}
+                  />
+                </Stack>
+              </Step>
+            </Grid>
+            <Grid item xs={12} md={6} p={2}>
+              <Preview />
+            </Grid>
+          </Grid>
+        </form>
+      </FormProvider>
     </Stack>
   );
 }
