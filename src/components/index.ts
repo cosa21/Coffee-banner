@@ -4,3 +4,4 @@ export { default as RHFSelect } from "./RHFSelect";
 export { default as RHFCheckbox } from "./RHFCheckbox";
 export { default as Step } from "./Step";
 export { default as Preview } from "./Preview";
+export { default as CodeModal } from "./CodeModal";

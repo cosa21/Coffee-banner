@@ -2,6 +2,7 @@ import "./App.css";
 import { Stack, Grid, FormControlLabel, Radio, Box } from "@mui/material";
 import { useForm } from "react-hook-form";
 import {
+  CodeModal,
   Preview,
   RHFCheckbox,
   RHFRadioGroup,
@@ -48,12 +49,13 @@ export default function App() {
       setIsModalOpen(true);
     }
   };
-
-  console.log(isModalOpen);
-
   const onReset = () => {
     reset();
     setActiveStep(STEP.FIRST);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -169,6 +171,7 @@ export default function App() {
           </Grid>
         </form>
       </FormProvider>
+      <CodeModal isOpen={isModalOpen} handleClose={handleCloseModal} />
     </Stack>
   );
 }

@@ -64,7 +64,7 @@ export default function Preview() {
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      width="50%"
+                      width={watch("showImage") ? "50%" : "100%"}
                       sx={{ wordBreak: "break-word" }}
                     >
                       {watch("description")}
